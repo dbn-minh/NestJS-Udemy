@@ -33,12 +33,24 @@ export class TasksService {
     return task;
   }
 
-  deleteTaskById(id: string): void {
-    const taskIndex = this.tasks.findIndex((task) => task.id === id);
+  // deleteTaskById(id: string): void {
+  //   const taskIndex = this.tasks.findIndex((task) => task.id === id);
 
-    if (taskIndex === -1) {
-      throw new NotFoundException(`Task with ID ${id} not found`);
-    }
-    this.tasks.splice(taskIndex, 1);
+  //   if (taskIndex === -1) {
+  //     throw new NotFoundException(`Task with ID ${id} not found`);
+  //   }
+  //   this.tasks.splice(taskIndex, 1);
+  // }
+
+  // Not actually delete the tasks, just not fetch the task with
+  // the given id
+  deleteTask(id: string): void {
+    this.tasks = this.tasks.filter((task) => task.id !== id);
+  }
+
+  updateTask(id: string, status: TaskStatus): Task {
+    const getTask = this.getTaskById(id);
+    getTask.status = status;
+    return getTask;
   }
 }
