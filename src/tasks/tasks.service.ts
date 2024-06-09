@@ -2,66 +2,47 @@ import { Injectable, NotFoundException, Query } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { Task } from './task.entity';
+import { TaskRepository } from './task.repository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult } from 'typeorm';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(Task)
-    private taskRepository: Repository<Task>,
+    private readonly taskRepository: TaskRepository,
   ) {}
 
-  // private tasks: Task[] = [];
-  // getAllTasks(): Task[] {
-  //   return this.tasks;
-  // }
+  async getTaskById(id: number): Promise<Task | undefined> {
+    const found = await this.taskRepository.findOne({
+      where: { id },
+    });
+    if (!found) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+    return found;
+  }
 
-  // getTasksWithFilters(@Query() filterDto: GetTasksFilterDto): Task[] {
-  //   const { status, search } = filterDto;
-  //   let tasks = this.getAllTasks();
+  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+    return this.taskRepository.createTask(createTaskDto);
+  }
 
-  //   if (status) {
-  //     tasks = tasks.filter((task) => task.status === status);
-  //   }
-  //   if (search) {
-  //     tasks = tasks.filter(
-  //       (task) =>
-  //         task.title.includes(search) || task.description.includes(search),
-  //     );
-  //   }
-  //   return tasks;
-  // }
+  async deleteTaskById(id: number): Promise<void> {
+    const result = await this.taskRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+    console.log(result);
+  }
 
-  // getTaskById(id: string): Task {
-  //   const task = this.tasks.find((task) => task.id === id);
-  //   if (!task) {
+  // deleteTaskById(id: number): void {
+  //   const taskIndex = this.taskRepository.findIndex((task) => task.id === id);
+
+  //   if (taskIndex === -1) {
   //     throw new NotFoundException(`Task with ID ${id} not found`);
   //   }
-  //   return task;
+  //   this.taskRepository.splice(taskIndex, 1);
   // }
-
-  // createTask(createTaskDto: CreateTaskDto): Task {
-  //   const { title, description } = createTaskDto;
-
-  //   const task: Task = {
-  //     title,
-  //     description,
-  //     status: TaskStatus.OPEN,
-  //   };
-
-  //   this.tasks.push(task);
-  //   return task;
-  // }
-
-  // // deleteTaskById(id: string): void {
-  // //   const taskIndex = this.tasks.findIndex((task) => task.id === id);
-
-  // //   if (taskIndex === -1) {
-  // //     throw new NotFoundException(`Task with ID ${id} not found`);
-  // //   }
-  // //   this.tasks.splice(taskIndex, 1);
-  // // }
 
   // // Not actually delete the tasks, just not fetch the task with
   // // the given id
