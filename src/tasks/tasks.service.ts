@@ -2,14 +2,16 @@ import { Injectable, NotFoundException, Query } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { Task } from './task.entity';
-import { TaskRepository } from './task.repository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult } from 'typeorm';
+import { Repository } from 'typeorm';
+import { TaskRepository } from './task.repository';
+// import { TaskRepository } from './task.repository';
 
 @Injectable()
 export class TasksService {
+  // Inject the repository directly
   constructor(
-    @InjectRepository(Task)
+    @InjectRepository(TaskRepository)
     private readonly taskRepository: TaskRepository,
   ) {}
 
@@ -32,7 +34,7 @@ export class TasksService {
     if (result.affected === 0) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
-    console.log(result);
+    console.log(`Deleted task with ID ${id}`);
   }
 
   // deleteTaskById(id: number): void {
