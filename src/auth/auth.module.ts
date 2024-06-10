@@ -1,0 +1,22 @@
+import { Module } from '@nestjs/common';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserRepository } from './user.repository';
+import { DataSource } from 'typeorm';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([UserRepository])],
+  controllers: [AuthController],
+  providers: [
+    AuthService,
+    {
+      provide: UserRepository,
+      useFactory: (dataSource: DataSource) => {
+        return new UserRepository(dataSource);
+      },
+      inject: [DataSource],
+    },
+  ],
+})
+export class AuthModule {}
